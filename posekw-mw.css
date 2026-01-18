@@ -97,12 +97,146 @@
     }
 }
 
-/* Results Grid */
+/* Results Grid - More Compact */
 .posekw-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    /* Smaller cards on desktop (was 280px) */
+    gap: 15px;
+    /* Tighter gap */
     margin-bottom: 40px;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .posekw-grid {
+        gap: 15px;
+    }
+}
+
+@media (max-width: 992px) {
+    .posekw-title {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    .posekw-mw-search {
+        padding: 5px;
+    }
+
+    #posekw-mw-form {
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    #posekw-mw-query,
+    #posekw-mw-submit {
+        width: 100%;
+        height: 42px;
+        line-height: 42px;
+        font-size: 14px;
+    }
+
+    /* MOBILE: 2 Columns for smaller look */
+    .posekw-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .posekw-card {
+        flex-direction: column;
+        height: auto;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .posekw-thumb {
+        width: 100%;
+        padding-top: 100%;
+        /* Square again for uniform grid */
+        height: auto;
+    }
+
+    /* Gallery on mobile - simplified dots or mini bar */
+    .posekw-gallery {
+        display: flex;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 4px;
+        background: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        width: 100%;
+        z-index: 20;
+    }
+
+    .posekw-gallery-img {
+        width: 30px;
+        /* Very small thumbs */
+        height: 30px;
+        border-width: 1px;
+        margin: 0 2px;
+        flex-shrink: 0;
+        opacity: 1;
+    }
+
+    .posekw-card-content {
+        padding: 8px;
+        gap: 6px;
+    }
+
+    /* Vertical stack for title/action to save space in 2-col */
+    .posekw-title-row {
+        flex-direction: column-reverse;
+        gap: 4px;
+    }
+
+    .posekw-stats {
+        justify-content: flex-end;
+        width: 100%;
+        margin-bottom: 2px;
+    }
+
+    .posekw-stat-item {
+        font-size: 10px;
+        /* Tiny stats */
+        padding: 2px 5px;
+    }
+
+    .posekw-title {
+        font-size: 12px;
+        /* Smaller title */
+        text-align: right;
+        -webkit-line-clamp: 2;
+        line-height: 1.3;
+        font-weight: 600;
+        min-height: 32px;
+    }
+
+    .posekw-actions {
+        margin-top: 5px;
+        gap: 5px;
+    }
+
+    .posekw-view,
+    .posekw-ws {
+        height: 28px;
+        /* Tiny buttons */
+        font-size: 11px;
+        padding: 0;
+        border-radius: 6px;
+    }
+}
+
+/* Make gallery always visible */
+.posekw-gallery {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    pointer-events: auto;
 }
 
 /* Model Card */

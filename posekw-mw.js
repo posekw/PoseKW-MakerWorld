@@ -2,7 +2,7 @@
 jQuery(document).ready(function ($) {
     'use strict';
 
-    console.log('PoseKW MakerWorld v7.11 - Compact Mobile UI');
+    console.log('PoseKW MakerWorld v7.13 - Compact 2-Col Grid');
     console.log('Settings:', posekwMwSettings);
 
     var searchInProgress = false;
@@ -163,17 +163,25 @@ jQuery(document).ready(function ($) {
             html += '<div class="posekw-card">';
             html += '<div class="posekw-thumb">' + thumb;
 
-            if (item.gallery && item.gallery.length > 0) {
-                html += '<div class="posekw-gallery">';
-                // Show first image (active)
-                // html += '<img src="' + escapeHtml(item.thumb) + '" class="posekw-gallery-img active" data-src="' + escapeHtml(item.thumb) + '">';
+            // Gallery Logic: Ensure we always have a gallery strip if there are images
+            // If only one image (thumb), duplicate it to toggle effects or show at least something
+            var galleryImages = item.gallery && item.gallery.length > 0 ? item.gallery : (item.thumb ? [item.thumb, item.thumb, item.thumb] : []);
 
-                // Show max 5 gallery items
-                var max = Math.min(item.gallery.length, 5);
+            if (galleryImages.length > 0) {
+                html += '<div class="posekw-gallery">';
+                // Limit to 4 images max for mobile space
+                var max = Math.min(galleryImages.length, 4);
+
+                // Always add the thumb as the first active item if not already in gallery
+                if (item.thumb && galleryImages[0] !== item.thumb) {
+                    html += '<img src="' + escapeHtml(item.thumb) + '" class="posekw-gallery-img active" data-src="' + escapeHtml(item.thumb) + '">';
+                    max = Math.min(galleryImages.length, 3); // Adjust count
+                }
+
                 for (var i = 0; i < max; i++) {
-                    var cls = (i === 0 && item.gallery[i] == item.thumb) ? 'active' : ''; // simplified logic
-                    // Just list them
-                    html += '<img src="' + escapeHtml(item.gallery[i]) + '" class="posekw-gallery-img" data-src="' + escapeHtml(item.gallery[i]) + '">';
+                    var img = galleryImages[i];
+                    var activeClass = (img === item.thumb) ? ' active' : '';
+                    html += '<img src="' + escapeHtml(img) + '" class="posekw-gallery-img' + activeClass + '" data-src="' + escapeHtml(img) + '">';
                 }
                 html += '</div>';
             }
