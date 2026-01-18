@@ -2,7 +2,7 @@
 jQuery(document).ready(function ($) {
     'use strict';
 
-    console.log('PoseKW MakerWorld v7.7 - Started');
+    console.log('PoseKW MakerWorld v7.8 - API Mode');
     console.log('Settings:', posekwMwSettings);
 
     var searchInProgress = false;
@@ -39,38 +39,37 @@ jQuery(document).ready(function ($) {
         $('#posekw-mw-results').html('');
         $('#posekw-mw-submit').prop('disabled', true).text('جاري البحث...');
 
-        var allResults = [];
-        var globalSeen = new Set();
-
-        // استخدام صفحة واحدة فقط مع limit عالي
-        var searchUrl = 'https://makerworld.com/en/search/models?keyword=' +
-            encodeURIComponent(currentQuery) + '&sortBy=most_download&limit=500';
+        // Use MakerWorld JSON API
+        // Endpoint: https://makerworld.com/api/v1/search-service/select/design2
+        var apiUrl = 'https://makerworld.com/api/v1/search-service/select/design2?keyword=' +
+            encodeURIComponent(currentQuery) + '&limit=50&offset=0&orderBy=most_download';
 
         // 1. Try Internal Proxy
-        var internalProxyUrl = posekwMwSettings.ajax_url + '?action=posekw_proxy&url=' + encodeURIComponent(searchUrl);
-        var fallbackProxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(searchUrl);
+        var internalProxyUrl = posekwMwSettings.ajax_url + '?action=posekw_proxy&url=' + encodeURIComponent(apiUrl);
+        var fallbackProxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
 
-        console.log('[FETCH] Trying Internal Proxy: ' + internalProxyUrl);
+        console.log('[FETCH] API via Internal Proxy: ' + internalProxyUrl);
 
         fetch(internalProxyUrl, {
             method: 'GET',
-            headers: { 'Accept': 'text/html' }
+            headers: { 'Accept': 'application/json' }
         })
             .then(function (response) {
-                // Check for custom proxy header or standard status
                 var proxyStatus = response.headers.get('X-Proxy-Status');
                 if (response.status !== 200 || (proxyStatus && proxyStatus != '200')) {
                     throw new Error('Internal Proxy Failed (HTTP ' + response.status + ')');
                 }
-                return response.text();
+                return response.json(); // Expect JSON
             })
-            .then(function (html) {
-                if (!html || html.length < 500) {
-                    // Sometimes internal proxy returns empty body if blocked
-                    throw new Error('Empty/blocked response from Internal Proxy');
+            .then(function (data) {
+                // Check if data has hits
+                if (!data || !data.hits) {
+                    // Try parsing string if double encoded or simple HTML error
+                    console.log('Data not standard JSON:', data);
+                    throw new Error('Invalid JSON structure from Internal Proxy');
                 }
-                console.log('[HTML] Internal Proxy Success: ' + html.length + ' bytes');
-                processHtml(html);
+                console.log('[API] Internal Proxy Success: ' + data.hits.length + ' results');
+                processJson(data);
             })
             .catch(function (err) {
                 console.warn('[WARN] Internal Proxy failed:', err.message);
@@ -80,11 +79,11 @@ jQuery(document).ready(function ($) {
                 return fetch(fallbackProxyUrl)
                     .then(function (res) {
                         if (!res.ok) throw new Error('Fallback Proxy Failed (HTTP ' + res.status + ')');
-                        return res.text();
+                        return res.json();
                     })
-                    .then(function (html) {
-                        console.log('[HTML] Fallback Proxy Success: ' + html.length + ' bytes');
-                        processHtml(html);
+                    .then(function (data) {
+                        console.log('[API] Fallback Proxy Success');
+                        processJson(data);
                     });
             })
             .catch(function (finalError) {
@@ -92,217 +91,54 @@ jQuery(document).ready(function ($) {
                 showMessage('عذراً، لم نتمكن من الاتصال بـ MakerWorld. قد يكون هناك حظر مؤقت.', 'error');
                 resetUI();
             });
+    }
 
-        function processHtml(html) {
-            console.log('[HTML] Received: ' + html.length + ' bytes');
-            var parser = new DOMParser();
-            var doc = parser.parseFromString(html, 'text/html');
+    function processJson(data) {
+        var hits = data.hits || [];
+        console.log('[API] Processing ' + hits.length + ' hits');
 
-            // البحث عن جميع الروابط
-            var links = doc.querySelectorAll('a[href*="/models/"], a[href*="/model/"]');
-            console.log('[LINKS] Found: ' + links.length + ' total links');
+        var pageResults = [];
 
-            var pageResults = [];
+        hits.forEach(function (hit) {
+            // Mapping API fields
+            var title = hit.title || hit.designName || 'No Title';
+            var thumb = hit.cover || hit.coverUrl || '';
+            var designId = hit.designId;
+            var link = 'https://makerworld.com/en/models/' + designId;
 
-            for (var i = 0; i < links.length; i++) {
-                var link = links[i];
-                var href = link.getAttribute('href');
+            // Stats
+            var downloads = hit.downloadCount || 0;
+            var likes = hit.likeCount || 0;
 
-                if (!href) continue;
-
-                if (href.indexOf('http') !== 0) {
-                    href = 'https://makerworld.com' + (href.charAt(0) === '/' ? '' : '/') + href;
-                }
-
-                var cleanHref = href.split('?')[0].split('#')[0];
-
-                if (cleanHref.indexOf('/model') === -1) {
-                    continue;
-                }
-
-                if (globalSeen.has(cleanHref)) {
-                    continue;
-                }
-
-                globalSeen.add(cleanHref);
-
-                var title = extractTitle(link);
-                var img = link.querySelector('img');
-                var thumb = '';
-                if (img) {
-                    thumb = img.src || img.dataset.src || img.getAttribute('data-src') || '';
-                }
-
-                var container = link.closest('div, article, li');
-                var stats = extractStats(container || link);
-
-                pageResults.push({
-                    title: title,
-                    thumb: thumb,
-                    link: cleanHref,
-                    gallery: [],
-                    likes: stats.likes,
-                    downloads: stats.downloads
+            // Gallery images
+            var gallery = [];
+            if (hit.designImages && Array.isArray(hit.designImages)) {
+                hit.designImages.forEach(function (imgObj) {
+                    if (imgObj.url) gallery.push(imgObj.url);
                 });
             }
 
-            allResults = allResults.concat(pageResults);
-            console.log('[TOTAL] Extracted: ' + allResults.length + ' unique products');
-
-            if (allResults.length > 0) {
-                displayResults(allResults);
-
-                if (posekwMwSettings.show_gallery) {
-                    fetchImagesForProducts(allResults);
-                }
-            } else {
-                showMessage('لم يتم العثور على نتائج', 'info');
-                resetUI();
+            // Clean up thumb URL if needed
+            if (thumb && thumb.indexOf('http') !== 0) {
+                // checking relative... usually API returns full
             }
-        }
-    }
 
-    function extractTitle(link) {
-        var title = '';
-
-        if (link.dataset.title) {
-            title = link.dataset.title.trim();
-        }
-
-        if (!title && link.title && link.title.length > 5) {
-            title = link.title.trim();
-        }
-
-        if (!title) {
-            var img = link.querySelector('img');
-            if (img && img.alt && img.alt.length > 5) {
-                title = img.alt.trim();
-            }
-        }
-
-        if (!title) {
-            var textContent = link.textContent.trim();
-            var lines = textContent.split('\n');
-            for (var j = 0; j < lines.length; j++) {
-                var line = lines[j].trim();
-                if (line.length > 5 && line.length < 200) {
-                    title = line;
-                    break;
-                }
-            }
-        }
-
-        if (!title || title.length < 3) {
-            title = 'منتج بدون عنوان';
-        }
-
-        title = title.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
-
-        if (title.length > 80) {
-            title = title.substring(0, 80) + '...';
-        }
-
-        return title;
-    }
-
-    function extractStats(element) {
-        var likes = Math.floor(Math.random() * 1000);
-        var downloads = Math.floor(Math.random() * 5000);
-
-        if (posekwMwSettings.show_stats && element) {
-            var text = element.textContent || '';
-
-            var likeMatch = text.match(/(\d+\.?\d*[kKmM]?)\s*(?:likes?|hearts?)/i);
-            if (likeMatch) likes = parseNumber(likeMatch[1]);
-
-            var dlMatch = text.match(/(\d+\.?\d*[kKmM]?)\s*(?:downloads?|downloads)/i);
-            if (dlMatch) downloads = parseNumber(dlMatch[1]);
-        }
-
-        return { likes: likes, downloads: downloads };
-    }
-
-    function parseNumber(str) {
-        var lower = str.toLowerCase();
-        if (lower.indexOf('m') !== -1) return parseInt(parseFloat(str) * 1000000);
-        if (lower.indexOf('k') !== -1) return parseInt(parseFloat(str) * 1000);
-        return parseInt(str);
-    }
-
-    function fetchImagesForProducts(results) {
-        console.log('[IMAGES] Fetching images for', results.length, 'products');
-
-        var fetchPromises = [];
-        for (var i = 0; i < results.length; i++) {
-            fetchPromises.push(fetchProductImages(results[i], i));
-        }
-
-        Promise.allSettled(fetchPromises).then(function () {
-            console.log('[IMAGES] Done - Refreshing display');
-            displayResults(results);
+            pageResults.push({
+                title: title,
+                thumb: thumb,
+                link: link,
+                gallery: gallery, // API usually gives all images! optimization!
+                likes: likes,
+                downloads: downloads
+            });
         });
-    }
 
-    function fetchProductImages(item, index) {
-        return new Promise(function (resolve) {
-            // Updated to use fallback proxy for images too
-            var internalProxyUrl = posekwMwSettings.ajax_url + '?action=posekw_proxy&url=' + encodeURIComponent(item.link);
-            var fallbackProxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(item.link);
-
-            var timeoutId = setTimeout(function () {
-                resolve();
-            }, 5000);
-
-            // Fetch Logic for Images: Internal -> Fallback
-            fetch(internalProxyUrl, { headers: { 'Accept': 'text/html' } })
-                .then(function (res) {
-                    if (!res.ok) throw new Error('Internal Fail');
-                    return res.text();
-                })
-                .then(function (html) {
-                    if (!html || html.length < 1000) throw new Error('Empty internal');
-                    parseAndResolve(html);
-                })
-                .catch(function () {
-                    fetch(fallbackProxyUrl)
-                        .then(function (res) { return res.text(); })
-                        .then(function (html) { parseAndResolve(html); })
-                        .catch(function () {
-                            clearTimeout(timeoutId); resolve();
-                        });
-                });
-
-            function parseAndResolve(html) {
-                clearTimeout(timeoutId);
-                var parser = new DOMParser();
-                var doc = parser.parseFromString(html, 'text/html');
-
-                var images = [];
-                var allImgs = doc.querySelectorAll('img');
-
-                allImgs.forEach(function (img) {
-                    var src = img.src || img.dataset.src || img.getAttribute('data-src') || '';
-
-                    if (src && src.indexOf('http') === 0) {
-                        if (src.indexOf('avatar') === -1 &&
-                            src.indexOf('icon') === -1 &&
-                            src.indexOf('logo') === -1 &&
-                            src.length > 30 && images.indexOf(src) === -1) {
-                            images.push(src);
-                        }
-                    }
-                });
-
-                if (images.length > 0) {
-                    item.thumb = images[0];
-                    if (images.length > 1) {
-                        item.gallery = images.slice(1, Math.min(images.length, 5));
-                    }
-                }
-                console.log('[PRODUCT]', (index + 1) + ':', item.title, '(' + images.length + ' images)');
-                resolve();
-            }
-        });
+        if (pageResults.length > 0) {
+            displayResults(pageResults);
+        } else {
+            showMessage('لم يتم العثور على نتائج', 'info');
+            resetUI();
+        }
     }
 
     function displayResults(results) {
@@ -329,8 +165,14 @@ jQuery(document).ready(function ($) {
 
             if (item.gallery && item.gallery.length > 0) {
                 html += '<div class="posekw-gallery">';
-                html += '<img src="' + escapeHtml(item.thumb) + '" class="posekw-gallery-img active" data-src="' + escapeHtml(item.thumb) + '">';
-                for (var i = 0; i < item.gallery.length; i++) {
+                // Show first image (active)
+                // html += '<img src="' + escapeHtml(item.thumb) + '" class="posekw-gallery-img active" data-src="' + escapeHtml(item.thumb) + '">';
+
+                // Show max 5 gallery items
+                var max = Math.min(item.gallery.length, 5);
+                for (var i = 0; i < max; i++) {
+                    var cls = (i === 0 && item.gallery[i] == item.thumb) ? 'active' : ''; // simplified logic
+                    // Just list them
                     html += '<img src="' + escapeHtml(item.gallery[i]) + '" class="posekw-gallery-img" data-src="' + escapeHtml(item.gallery[i]) + '">';
                 }
                 html += '</div>';
@@ -407,5 +249,4 @@ jQuery(document).ready(function ($) {
         return text.toString().replace(/[&<>"']/g, function (m) { return map[m]; });
     }
 
-    console.log('PoseKW MakerWorld v7.6 Ready');
 });
