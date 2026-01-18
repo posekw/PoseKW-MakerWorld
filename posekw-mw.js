@@ -2,7 +2,7 @@
 jQuery(document).ready(function ($) {
     'use strict';
 
-    console.log('PoseKW MakerWorld v7.15 - Desktop 3-Col / Mobile Compact List');
+    console.log('PoseKW MakerWorld v7.16 - Ultra-Compact Mobile 1-Col');
     console.log('Settings:', posekwMwSettings);
 
     var searchInProgress = false;

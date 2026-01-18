@@ -1,9 +1,9 @@
 <?php
 header('Content-Type: text/html; charset=utf-8');
 /*
-Plugin Name: PoseKW MakerWorld Search v7.15
-Description: Search 3D Models from MakerWorld - Simple & Fast (Desktop 3-Col / Mobile Compact List)
-Version: 7.15
+Plugin Name: PoseKW MakerWorld Search v7.16
+Description: Search 3D Models from MakerWorld - Simple & Fast (Ultra-Compact Mobile 1-Col)
+Version: 7.16
 Author: PoseKW Team
 Text Domain: posekw-mw
 */
@@ -11,7 +11,7 @@ Text Domain: posekw-mw
 if (!defined('ABSPATH'))
     exit;
 
-define('POSEKW_MW_VERSION', '7.15');
+define('POSEKW_MW_VERSION', '7.16');
 define('POSEKW_MW_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 class PoseKW_MakerWorld_Search

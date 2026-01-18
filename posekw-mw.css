@@ -163,7 +163,9 @@
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+
+    /* Increased from 768px to cover larger phones */
     .posekw-mw-search {
         padding: 5px;
     }
@@ -174,28 +176,21 @@
         margin-bottom: 20px;
     }
 
-    #posekw-mw-query,
-    #posekw-mw-submit {
-        width: 100%;
-        height: 42px;
-        line-height: 42px;
-        font-size: 14px;
-    }
-
-    /* MOBILE: 1 Column (User Request) */
+    /* MOBILE: Force 1 Column */
     .posekw-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
+        grid-template-columns: 1fr !important;
+        /* Force 1 column */
+        gap: 12px;
     }
 
+    /* Horizontal Card Layout (Small Height) */
     .posekw-card {
         flex-direction: row;
-        /* Horizontal layout for compact 1-col */
-        height: 110px;
-        /* Fixed small height */
+        height: 100px;
+        /* Even smaller height */
         align-items: stretch;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     }
 
     .posekw-thumb {
