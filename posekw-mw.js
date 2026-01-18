@@ -2,7 +2,7 @@
 jQuery(document).ready(function ($) {
     'use strict';
 
-    console.log('PoseKW MakerWorld v7.13 - Compact 2-Col Grid');
+    console.log('PoseKW MakerWorld v7.14 - Real Gallery & Compact');
     console.log('Settings:', posekwMwSettings);
 
     var searchInProgress = false;
@@ -103,33 +103,48 @@ jQuery(document).ready(function ($) {
             // Mapping API fields
             var title = hit.title || hit.designName || 'No Title';
             var thumb = hit.cover || hit.coverUrl || '';
-            var designId = hit.designId;
-            var link = 'https://makerworld.com/en/models/' + designId;
+            var designName = hit.title || hit.designName || 'No Name';
+            var coverUrl = hit.cover || (hit.designImages && hit.designImages[0] ? hit.designImages[0].url : '') || '';
+            var likeCount = hit.likeCount || 0;
+            var downloadCount = hit.downloadCount || 0;
 
-            // Stats
-            var downloads = hit.downloadCount || 0;
-            var likes = hit.likeCount || 0;
-
-            // Gallery images
+            // Extract Gallery Images (Correct Path: designExtension.design_pictures)
             var gallery = [];
-            if (hit.designImages && Array.isArray(hit.designImages)) {
+
+            // 1. Try designExtension.design_pictures (Most common for search results)
+            if (hit.designExtension && hit.designExtension.design_pictures && Array.isArray(hit.designExtension.design_pictures)) {
+                hit.designExtension.design_pictures.forEach(function (imgObj) {
+                    if (imgObj.url && imgObj.url !== coverUrl) { // Avoid duplicate cover
+                        gallery.push(imgObj.url);
+                    }
+                });
+            }
+            // 2. Fallback to designImages (if API changes)
+            else if (hit.designImages && Array.isArray(hit.designImages)) {
                 hit.designImages.forEach(function (imgObj) {
-                    if (imgObj.url) gallery.push(imgObj.url);
+                    if (imgObj.url && imgObj.url !== coverUrl) gallery.push(imgObj.url);
                 });
             }
 
-            // Clean up thumb URL if needed
-            if (thumb && thumb.indexOf('http') !== 0) {
-                // checking relative... usually API returns full
+            // If gallery is empty, we DO NOT force duplicates here. 
+            // We handle "no gallery" in the buildGrid function to avoid 3 identical images if not desired, 
+            // or we can push the cover if we really want a strip. 
+            // User complained about "all same images", so let's ONLY show gallery if we have distinct images.
+            // If only 1 image exists (cover), we might show it in gallery or not. 
+            // Let's add cover to gallery if gallery is empty, so we at least have 1 thumb to click.
+            if (gallery.length === 0 && coverUrl) {
+                // strict mode: don't push cover to gallery to avoid "duplicate" visual if we want distinct thumbs.
+                // But layout expects gallery? 
+                // Let's NOT push cover to gallery array to keep it clean.
             }
 
             pageResults.push({
-                title: title,
-                thumb: thumb,
-                link: link,
-                gallery: gallery, // API usually gives all images! optimization!
-                likes: likes,
-                downloads: downloads
+                title: designName,
+                thumb: coverUrl,
+                likes: likeCount,
+                downloads: downloadCount,
+                link: 'https://makerworld.com/en/models/' + hit.id,
+                gallery: gallery
             });
         });
 
@@ -163,27 +178,24 @@ jQuery(document).ready(function ($) {
             html += '<div class="posekw-card">';
             html += '<div class="posekw-thumb">' + thumb;
 
-            // Gallery Logic: Ensure we always have a gallery strip if there are images
-            // If only one image (thumb), duplicate it to toggle effects or show at least something
-            var galleryImages = item.gallery && item.gallery.length > 0 ? item.gallery : (item.thumb ? [item.thumb, item.thumb, item.thumb] : []);
+            // Gallery Logic: Only show if we have ACTUAL extra images
+            var galleryImages = item.gallery || [];
 
             if (galleryImages.length > 0) {
                 html += '<div class="posekw-gallery">';
                 // Limit to 4 images max for mobile space
                 var max = Math.min(galleryImages.length, 4);
 
-                // Always add the thumb as the first active item if not already in gallery
-                if (item.thumb && galleryImages[0] !== item.thumb) {
-                    html += '<img src="' + escapeHtml(item.thumb) + '" class="posekw-gallery-img active" data-src="' + escapeHtml(item.thumb) + '">';
-                    max = Math.min(galleryImages.length, 3); // Adjust count
-                }
-
                 for (var i = 0; i < max; i++) {
                     var img = galleryImages[i];
-                    var activeClass = (img === item.thumb) ? ' active' : '';
-                    html += '<img src="' + escapeHtml(img) + '" class="posekw-gallery-img' + activeClass + '" data-src="' + escapeHtml(img) + '">';
+                    // Don't mark active by default to avoid confusion, or mark first
+                    html += '<img src="' + escapeHtml(img) + '" class="posekw-gallery-img" data-src="' + escapeHtml(img) + '">';
                 }
                 html += '</div>';
+            } else {
+                // If NO gallery images, maybe show nothing or just the cover as a single thumb?
+                // User said "all same image duplicated" is bad. So let's NOT show gallery strip if empty.
+                // html += '<div class="posekw-gallery"></div>'; // Empty
             }
 
             html += '</div>';
