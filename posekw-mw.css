@@ -797,7 +797,81 @@
 
 @media (max-width: 768px) {
     .posekw-mw-search {
-        padding: 15px;
+        padding: 10px;
+    }
+
+    .posekw-grid {
+        grid-template-columns: 1fr;
+        /* Full width cards on mobile */
+        gap: 15px;
+    }
+
+    .posekw-card {
+        flex-direction: column;
+        /* Vertical stack */
+        height: auto;
+    }
+
+    .posekw-thumb {
+        width: 100%;
+        padding-top: 100%;
+        /* Square aspect ratio */
+        height: auto;
+    }
+
+    /* Show gallery on mobile */
+    .posekw-gallery {
+        display: flex;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 8px;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+        opacity: 1;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .posekw-gallery-img {
+        width: 45px;
+        height: 45px;
+        border-width: 2px;
+        margin: 0 2px;
+    }
+
+    .posekw-card-content {
+        padding: 12px;
+        gap: 8px;
+    }
+
+    .posekw-title-row {
+        flex-direction: column-reverse;
+        gap: 6px;
+    }
+
+    .posekw-stats {
+        justify-content: flex-end;
+        width: 100%;
+        margin-bottom: 4px;
+    }
+
+    .posekw-title {
+        font-size: 15px;
+        text-align: right;
+        min-height: auto;
+        -webkit-line-clamp: 2;
+    }
+
+    .posekw-actions {
+        margin-top: 8px;
+        gap: 8px;
+    }
+
+    .posekw-view,
+    .posekw-ws {
+        height: 36px;
+        font-size: 13px;
     }
 
     #posekw-mw-form {
@@ -808,54 +882,19 @@
     #posekw-mw-submit {
         width: 100%;
     }
-
-    .posekw-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-
-    .posekw-title {
-        font-size: 15px;
-    }
-
-    .posekw-title-row {
-        flex-direction: row-reverse;
-        align-items: center;
-    }
-
-    .posekw-stats {
-        width: auto;
-        justify-content: flex-end;
-    }
-
-    .posekw-view,
-    .posekw-ws {
-        font-size: 13px;
-        padding: 10px 12px;
-    }
 }
 
 @media (max-width: 480px) {
     .posekw-gallery-img {
-        width: 45px;
-        height: 45px;
+        width: 40px;
+        height: 40px;
     }
+}
 
-    .posekw-stat-item {
-        font-size: 12px;
-        padding: 5px 8px;
-        min-width: 60px;
-    }
-
-    .posekw-view,
-    .posekw-ws {
-        font-size: 12px;
-        padding: 10px 8px;
-    }
-
-    .posekw-page-btn {
-        padding: 8px 12px;
-        font-size: 13px;
-        min-width: 40px;
-    }
+/* Make gallery always visible on desktop too (Premium feel) */
+.posekw-gallery {
+    opacity: 1;
+    /* Always visible */
+    transform: translateY(0);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
 }
