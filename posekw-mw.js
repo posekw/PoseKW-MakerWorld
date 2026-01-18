@@ -2,7 +2,7 @@
 jQuery(document).ready(function ($) {
     'use strict';
 
-    console.log('PoseKW MakerWorld v7.6 - Started');
+    console.log('PoseKW MakerWorld v7.7 - Started');
     console.log('Settings:', posekwMwSettings);
 
     var searchInProgress = false;
