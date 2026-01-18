@@ -77,7 +77,7 @@ class PoseKW_MakerWorld_Search
     public function enqueue_assets()
     {
         wp_register_script('posekw-mw-js', POSEKW_MW_PLUGIN_URL . 'posekw-mw.js', array('jquery'), POSEKW_MW_VERSION, true);
-        
+
         $settings = array_merge($this->options, array(
             'ajax_url' => admin_url('admin-ajax.php')
         ));
@@ -198,9 +198,10 @@ class PoseKW_MakerWorld_Search
         </div>
         <?php
     }
-    public function handle_proxy_request() {
+    public function handle_proxy_request()
+    {
         $url = isset($_GET['url']) ? esc_url_raw($_GET['url']) : '';
-        
+
         if (empty($url)) {
             wp_send_json_error('No URL provided');
         }
@@ -208,23 +209,43 @@ class PoseKW_MakerWorld_Search
         // Basic security: Check if domain is makerworld.com
         $parsed_url = parse_url($url);
         if (!isset($parsed_url['host']) || strpos($parsed_url['host'], 'makerworld.com') === false) {
-             // Allow for now to prevent breaking if redirects occur, but ideally strict.
+            // Allow for now to prevent breaking if redirects occur
         }
 
-        $response = wp_remote_get($url, array(
-            'timeout' => 20,
-            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        // Enhanced Headers to mimic real browser
+        $args = array(
+            'timeout' => 25,
+            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'headers' => array(
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+                'Accept-Language' => 'en-US,en;q=0.9',
+                'Referer' => 'https://makerworld.com/',
+                'Upgrade-Insecure-Requests' => '1',
+                'Sec-Fetch-Dest' => 'document',
+                'Sec-Fetch-Mode' => 'navigate',
+                'Sec-Fetch-Site' => 'none',
+                'Sec-Fetch-User' => '?1',
+                'Cache-Control' => 'max-age=0',
+            ),
             'sslverify' => false
-        ));
+        );
+
+        $response = wp_remote_get($url, $args);
 
         if (is_wp_error($response)) {
             wp_send_json_error($response->get_error_message());
         }
 
+        $code = wp_remote_retrieve_response_code($response);
         $body = wp_remote_retrieve_body($response);
-        
+
         // Return text/html
         header('Content-Type: text/html');
+
+        // Debugging info in headers
+        header('X-Proxy-Status: ' . $code);
+        header('X-Body-Length: ' . strlen($body));
+
         echo $body;
         wp_die();
     }
