@@ -2,7 +2,7 @@
 jQuery(document).ready(function ($) {
     'use strict';
 
-    console.log('PoseKW MakerWorld v7.14 - Real Gallery & Compact');
+    console.log('PoseKW MakerWorld v7.15 - Desktop 3-Col / Mobile Compact List');
     console.log('Settings:', posekwMwSettings);
 
     var searchInProgress = false;
@@ -175,54 +175,44 @@ jQuery(document).ready(function ($) {
                 ? '<img src="' + escapeHtml(item.thumb) + '" alt="' + escapeHtml(item.title) + '" class="posekw-main-img">'
                 : '<div class="no-thumb">لا توجد صورة</div>';
 
+            // Stats HTML (Floating Badges)
+            var statsHtml = '<div class="posekw-stats-overlay">' +
+                '<span class="posekw-stat-badge"><i class="fas fa-heart"></i> ' + formatNumber(item.likes) + '</span>' +
+                '<span class="posekw-stat-badge"><i class="fas fa-download"></i> ' + formatNumber(item.downloads) + '</span>' +
+                '</div>';
+
             html += '<div class="posekw-card">';
-            html += '<div class="posekw-thumb">' + thumb;
 
-            // Gallery Logic: Only show if we have ACTUAL extra images
+            // Thumbnail Container with Stats Overlay
+            html += '<div class="posekw-thumb">' + thumb + statsHtml;
+
+            // Gallery Logic
             var galleryImages = item.gallery || [];
-
             if (galleryImages.length > 0) {
                 html += '<div class="posekw-gallery">';
-                // Limit to 4 images max for mobile space
                 var max = Math.min(galleryImages.length, 4);
 
+                // Add first thumb as inactive if not present, to ensure main view
+                // Actually, just listing gallery images is cleaner for the overlay strip
                 for (var i = 0; i < max; i++) {
                     var img = galleryImages[i];
-                    // Don't mark active by default to avoid confusion, or mark first
                     html += '<img src="' + escapeHtml(img) + '" class="posekw-gallery-img" data-src="' + escapeHtml(img) + '">';
                 }
                 html += '</div>';
-            } else {
-                // If NO gallery images, maybe show nothing or just the cover as a single thumb?
-                // User said "all same image duplicated" is bad. So let's NOT show gallery strip if empty.
-                // html += '<div class="posekw-gallery"></div>'; // Empty
             }
+            html += '</div>'; // End posekw-thumb
 
-            html += '</div>';
+            // Card Content (Minimal: Title + Actions only)
             html += '<div class="posekw-card-content">';
-
-            html += '<div class="posekw-title-row">';
-            html += '<h3 class="posekw-title">' + escapeHtml(item.title) + '</h3>';
-
-            if (posekwMwSettings.show_stats) {
-                html += '<div class="posekw-stats">';
-                html += '<span class="posekw-stat-item">⬇️ ' + formatNumber(item.downloads) + '</span>';
-                html += '<span class="posekw-stat-item">❤️ ' + formatNumber(item.likes) + '</span>';
-                html += '</div>';
-            }
-
-            html += '</div>';
+            html += '<h3 class="posekw-title" title="' + escapeHtml(item.title) + '">' + escapeHtml(item.title) + '</h3>';
 
             html += '<div class="posekw-actions">';
-            html += '<a class="posekw-view" href="' + escapeHtml(item.link) + '" target="_blank">عرض</a>';
+            html += '<a href="' + escapeHtml(item.link) + '" target="_blank" class="posekw-view">عرض</a>';
+            html += '<a href="https://wa.me/?text=' + encodeURIComponent(item.title + ' ' + item.link) + '" target="_blank" class="posekw-ws"><i class="fab fa-whatsapp"></i> واتساب</a>';
+            html += '</div>';
 
-            var waNumber = posekwMwSettings.wa_number;
-            var waTemplate = posekwMwSettings.wa_message;
-            var waText = waTemplate + ' ' + item.link;
-            var waLink = 'https://wa.me/' + waNumber + '?text=' + encodeURIComponent(waText);
-
-            html += '<a class="posekw-ws" href="' + escapeHtml(waLink) + '" target="_blank">واتساب</a>';
-            html += '</div></div></div>';
+            html += '</div>'; // End card-content
+            html += '</div>'; // End card
         });
 
         html += '</div>';

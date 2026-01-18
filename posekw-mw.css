@@ -97,26 +97,69 @@
     }
 }
 
-/* Results Grid - More Compact */
+/* Results Grid */
 .posekw-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    /* Smaller cards on desktop (was 280px) */
-    gap: 15px;
-    /* Tighter gap */
+    grid-template-columns: repeat(3, 1fr);
+    /* Force 3 columns on Desktop */
+    gap: 20px;
     margin-bottom: 40px;
+}
+
+/* Stats Overlay (Floating Badges) */
+.posekw-stats-overlay {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.posekw-stat-badge {
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 6px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.posekw-stat-badge i {
+    font-size: 10px;
+}
+
+.posekw-stat-badge i.fa-heart {
+    color: #ff4d4f;
+}
+
+.posekw-stat-badge i.fa-download {
+    color: #40a9ff;
 }
 
 /* Responsive Design */
 @media (max-width: 1200px) {
     .posekw-grid {
-        gap: 15px;
+        gap: 20px;
     }
 }
 
 @media (max-width: 992px) {
     .posekw-title {
         font-size: 14px;
+    }
+
+    .posekw-grid {
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 columns on tablet */
     }
 }
 
@@ -139,95 +182,88 @@
         font-size: 14px;
     }
 
-    /* MOBILE: 2 Columns for smaller look */
+    /* MOBILE: 1 Column (User Request) */
     .posekw-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        grid-template-columns: 1fr;
+        gap: 15px;
     }
 
     .posekw-card {
-        flex-direction: column;
-        height: auto;
+        flex-direction: row;
+        /* Horizontal layout for compact 1-col */
+        height: 110px;
+        /* Fixed small height */
+        align-items: stretch;
         border-radius: 10px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     }
 
     .posekw-thumb {
-        width: 100%;
-        padding-top: 100%;
-        /* Square again for uniform grid */
-        height: auto;
+        width: 110px;
+        /* Fixed square on left/right */
+        height: 100%;
+        padding-top: 0;
+        flex-shrink: 0;
     }
 
-    /* Gallery on mobile - simplified dots or mini bar */
+    /* Move gallery overlay to be tiny at bottom of thumb */
     .posekw-gallery {
-        display: flex;
-        position: absolute;
+        padding: 2px;
         bottom: 0;
-        left: 0;
-        right: 0;
-        padding: 4px;
-        background: rgba(0, 0, 0, 0.7);
-        justify-content: center;
-        width: 100%;
-        z-index: 20;
+        background: rgba(0, 0, 0, 0.5);
     }
 
     .posekw-gallery-img {
-        width: 30px;
-        /* Very small thumbs */
-        height: 30px;
+        width: 20px;
+        height: 20px;
+        margin: 0 1px;
         border-width: 1px;
-        margin: 0 2px;
-        flex-shrink: 0;
-        opacity: 1;
+    }
+
+    .posekw-stats-overlay {
+        top: 4px;
+        right: 4px;
+        gap: 2px;
+    }
+
+    .posekw-stat-badge {
+        font-size: 9px;
+        padding: 2px 4px;
     }
 
     .posekw-card-content {
-        padding: 8px;
-        gap: 6px;
-    }
-
-    /* Vertical stack for title/action to save space in 2-col */
-    .posekw-title-row {
-        flex-direction: column-reverse;
+        padding: 10px;
         gap: 4px;
-    }
-
-    .posekw-stats {
-        justify-content: flex-end;
-        width: 100%;
-        margin-bottom: 2px;
-    }
-
-    .posekw-stat-item {
-        font-size: 10px;
-        /* Tiny stats */
-        padding: 2px 5px;
+        justify-content: space-between;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
     }
 
     .posekw-title {
-        font-size: 12px;
-        /* Smaller title */
+        font-size: 14px;
         text-align: right;
         -webkit-line-clamp: 2;
         line-height: 1.3;
         font-weight: 600;
-        min-height: 32px;
+        min-height: auto;
+        margin-bottom: auto;
     }
 
     .posekw-actions {
-        margin-top: 5px;
-        gap: 5px;
+        margin-top: 0;
+        gap: 8px;
+        width: 100%;
+        display: flex;
     }
 
     .posekw-view,
     .posekw-ws {
-        height: 28px;
-        /* Tiny buttons */
-        font-size: 11px;
+        height: 30px;
+        font-size: 12px;
         padding: 0;
         border-radius: 6px;
+        flex: 1;
     }
 }
 
