@@ -2,7 +2,7 @@
 jQuery(document).ready(function ($) {
     'use strict';
 
-    console.log('PoseKW MakerWorld v7.8 - API Mode');
+    console.log('PoseKW MakerWorld v7.9 - Premium UI');
     console.log('Settings:', posekwMwSettings);
 
     var searchInProgress = false;
