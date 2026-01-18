@@ -797,63 +797,86 @@
 
 @media (max-width: 768px) {
     .posekw-mw-search {
-        padding: 10px;
+        padding: 5px;
+    }
+
+    #posekw-mw-form {
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    #posekw-mw-query,
+    #posekw-mw-submit {
+        width: 100%;
+        height: 45px;
+        /* Smaller inputs */
+        line-height: 45px;
     }
 
     .posekw-grid {
         grid-template-columns: 1fr;
-        /* Full width cards on mobile */
         gap: 15px;
     }
 
     .posekw-card {
         flex-direction: column;
-        /* Vertical stack */
         height: auto;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     }
 
+    /* COMPACT IMAGE: 16:9 Aspect Ratio instead of 1:1 */
     .posekw-thumb {
         width: 100%;
-        padding-top: 100%;
-        /* Square aspect ratio */
+        padding-top: 56.25%;
+        /* 16:9 Ratio - Much shorter */
         height: auto;
     }
 
-    /* Show gallery on mobile */
+    /* Ensure gallery is visible on top of the image */
     .posekw-gallery {
         display: flex;
         position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
-        padding: 8px;
-        background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
-        opacity: 1;
-        justify-content: center;
-        width: 100%;
+        padding: 6px;
+        background: rgba(0, 0, 0, 0.8);
+        /* Darker background for contrast */
+        justify-content: flex-start;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        z-index: 20;
     }
 
     .posekw-gallery-img {
-        width: 45px;
-        height: 45px;
+        width: 40px;
+        /* Smaller thumbs */
+        height: 40px;
         border-width: 2px;
-        margin: 0 2px;
+        margin-right: 6px;
+        flex-shrink: 0;
+        opacity: 1;
+        /* Force visible */
     }
 
     .posekw-card-content {
-        padding: 12px;
+        padding: 10px 14px;
         gap: 8px;
     }
 
     .posekw-title-row {
-        flex-direction: column-reverse;
-        gap: 6px;
+        flex-direction: row-reverse;
+        /* Save vertical space */
+        align-items: flex-start;
+        justify-content: space-between;
     }
 
     .posekw-stats {
+        width: auto;
         justify-content: flex-end;
-        width: 100%;
-        margin-bottom: 4px;
     }
 
     .posekw-title {
@@ -861,33 +884,28 @@
         text-align: right;
         min-height: auto;
         -webkit-line-clamp: 2;
+        line-height: 1.3;
     }
 
     .posekw-actions {
-        margin-top: 8px;
+        margin-top: 5px;
         gap: 8px;
     }
 
     .posekw-view,
     .posekw-ws {
-        height: 36px;
+        height: 34px;
         font-size: 13px;
-    }
-
-    #posekw-mw-form {
-        flex-direction: column;
-    }
-
-    #posekw-mw-query,
-    #posekw-mw-submit {
-        width: 100%;
+        padding: 0;
     }
 }
 
 @media (max-width: 480px) {
+
+    /* Ultra compact for small phones */
     .posekw-gallery-img {
-        width: 40px;
-        height: 40px;
+        width: 35px;
+        height: 35px;
     }
 }
 

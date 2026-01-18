@@ -2,7 +2,7 @@
 jQuery(document).ready(function ($) {
     'use strict';
 
-    console.log('PoseKW MakerWorld v7.10 - Mobile Gallery Fixed');
+    console.log('PoseKW MakerWorld v7.11 - Compact Mobile UI');
     console.log('Settings:', posekwMwSettings);
 
     var searchInProgress = false;
