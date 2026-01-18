@@ -100,8 +100,8 @@
 /* Results Grid */
 .posekw-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    /* Force 3 columns on Desktop */
+    grid-template-columns: repeat(4, 1fr);
+    /* Force 4 columns on Large Desktop for smaller cards */
     gap: 20px;
     margin-bottom: 40px;
 }
@@ -148,24 +148,15 @@
 /* Responsive Design */
 @media (max-width: 1200px) {
     .posekw-grid {
+        grid-template-columns: repeat(3, 1fr);
+        /* 3 Columns on Laptops */
         gap: 20px;
-    }
-}
-
-@media (max-width: 992px) {
-    .posekw-title {
-        font-size: 14px;
-    }
-
-    .posekw-grid {
-        grid-template-columns: repeat(2, 1fr);
-        /* 2 columns on tablet */
     }
 }
 
 @media (max-width: 900px) {
 
-    /* Increased from 768px to cover larger phones */
+    /* Tablet/Mobile Breakpoint */
     .posekw-mw-search {
         padding: 5px;
     }
@@ -178,7 +169,6 @@
 
     /* MOBILE: Force 1 Column */
     .posekw-grid {
-        grid-template-columns: 1fr !important;
         /* Force 1 column */
         gap: 12px;
     }
