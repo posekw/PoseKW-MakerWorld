@@ -636,29 +636,9 @@
     }
 }
 
-/* Results Grid */
-.posekw-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 25px;
-    margin-bottom: 30px;
-}
 
-/* Model Card */
-.posekw-card {
-    background: linear-gradient(135deg, #1a1a1a 0%, #0f0f10 100%);
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-    transition: all 0.3s ease;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
 
-.posekw-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
-}
+
 
 /* Image Container */
 .posekw-thumb {
