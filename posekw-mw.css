@@ -358,11 +358,13 @@
 
 /* Card Content */
 .posekw-card-content {
-    padding: 16px;
+    padding: 12px;
+    /* Reduced from 20px */
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    gap: 12px;
+    gap: 8px;
+    /* Reduced from 12px */
     background: linear-gradient(to bottom, #1a1a1a, #151515);
 }
 

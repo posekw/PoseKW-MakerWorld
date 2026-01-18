@@ -2,7 +2,7 @@
 jQuery(document).ready(function ($) {
     'use strict';
 
-    console.log('PoseKW MakerWorld v7.19 - Centered Title & SVG Icons');
+    console.log('PoseKW MakerWorld v7.20 - Compact Title Area');
     console.log('Settings:', posekwMwSettings);
 
     var searchInProgress = false;
